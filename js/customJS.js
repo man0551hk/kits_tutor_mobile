@@ -318,6 +318,8 @@
 				salary1 = ui.values[0];
 				salary2 = ui.values[1];
 				$( "#amount" ).val( "$" + ui.values[0] + " - $" + ui.values[1]);	
+				$("#amountStart").val(ui.values[0]);
+				$("#amountEnd").val(ui.values[1]);
 				masterSearch();				
 			},
 			change: function(event, ui) { 
@@ -325,6 +327,8 @@
 				salary1 = ui.values[0];
 				salary2 = ui.values[1];
 				$( "#amount" ).val( "$" + ui.values[0] + " - $" + ui.values[1]);	
+				$("#amountStart").val(ui.values[0]);
+				$("#amountEnd").val(ui.values[1]);
 				masterSearch();
 			}
 		});	
@@ -338,6 +342,8 @@
 				year1 = ui.values[0];
 				year2 = ui.values[1];
 				$( "#year" ).val(yearMap[year1] + " - " + yearMap[year2] );
+				$("#yearStart").val(yearMap[year1]);
+				$("#yearEnd").val(yearMap[year2]);
 				//SearchYear(ui.values[0], ui.values[1]);
 				masterSearch();
 			}

@@ -1,0 +1,115 @@
+﻿@charset "utf-8";
+/* CSS Document */
+html, body, ul, li {padding:0; margin:0;}
+body {font:14px/normal "微軟正黑體";}
+ul,li {list-style-type:none; text-transform:capitalize;}
+.clear {clear:both; *display:inline;/*IE only*/}
+
+/*menu*/
+#table1 {text-align:left;text-valign:middle; margin:0px 0px;width:1100 height:24px;background:#999 ;border=0;padding:0px 0px ;}
+
+#menu {margin:0px 0px; display:block; width:1000px; height:34px;}/*設定menu區塊的寬與高*/
+#nav {display:block;}/*設定清單為區塊*/
+#nav .mainlevel {float:left; background:#999; text-align:center; display:block;}/*設定一級導航列背景顏色、文字對齊方式*/
+#nav .mainlevel a {color:#fff; text-decoration:none; line-height:34px; height:34px; text-align:center; padding:0 20px; display:block; _width:48px; border-left:#FFF 1px solid;}/*設定一級導覽列連結的一般狀態效果*/
+#nav .mainlevel a:hover {color:#000; text-decoration:none; background:#F4F3F2;}/*設定一級導覽列連結的滑鼠滑入的效果*/
+
+
+#nav .mainlevel ul {position:absolute; display:none; *width:500px;/*設定二級導覽列為絕對定位，並隱藏起來*/}
+#nav .mainlevel li { background:#F4F3F2;}/*設定二級導覽列連結背景效果*/
+#nav .mainlevel li a {color:#000; padding:0px 0px;text-align:center; line-height:22px; height:22px; display:block; _padding-bottom:6px;/*IE6 only*/}/*設定二級導覽列連結的一般狀態效果*/
+#nav .mainlevel li a:hover {color:#000; text-decoration:none; background:#Fff }/*設定二級導覽列連結的滑鼠滑入的效果*/
+#nav li a em/*input an em tag as a space*/ {padding:0 3px;}
+.note {color:#fff; border-right:1px solid #fff; background:#999; display:block; line-height:34px; padding:0 3em;}
+.Triangle_con {height:9px; background:url(../images/bird.png) 36px 0 no-repeat; display:block; _margin-bottom:-6px;/*IE6 only*/}
+.log {margin:100px auto; width:1000px; text-transform:capitalize; line-height:200%;}
+
+/*
+.nifty1{ float:left; margin:0 0; background:#F4F3F2; width:420px; position: fixed; left:660px; top:250px; border:0px solid;}
+.nifty1 .content{ padding:20px 10px 20px 10px ; height:760px;}
+
+.nifty{ float:left; margin:0 0; background:#F4F3F2; width:420px;position: absolute; left:660px; top:500px; border:0px solid;}
+.nifty .content{ padding:0 10px; height:760px;}
+b.rtop,b.rbottom{display:block; background:#FFF;}
+b.rtop b,b.rbottom b{display:block; height:1px; overflow:hidden; background:#F4F3F2;}
+b.r1{margin:0 5px;}
+b.r2{margin:0 3px;}
+b.r3{margin:0 2px;}
+b.rtop b.r4,rbottom b.r4{margin:0 1px; height:2px;}
+*/
+
+
+
+/*.content
+{
+	position:fixed;
+	left:0px;
+	text-align:left; 
+	border:2px solid;
+	width:auto;
+	max-width:940px;
+}*/
+
+.defaultOpenCol
+{
+	display:in-line;
+}
+.defaultHideCol
+{
+	display:none;
+}
+
+@media (max-width: 768px) { 
+	.searchPanel
+	{
+		position:static;
+	}
+	.defaultOpenCol
+	{
+		display:none;
+	}
+	.defaultHideCol
+	{
+		display:block;
+	}	
+}
+
+
+#adv { border: 1px solid black; float:right; }
+#googleMap { border: 1px solid black; float:right; }
+#dialog-link {
+	padding: .4em 1em .4em 20px;
+	text-decoration: none;
+	position: relative;
+}
+#dialog-link span.ui-icon {
+	margin: 0 5px 0 0;
+	position: absolute;
+	left: .2em;
+	top: 50%;
+	margin-top: -8px;
+}
+#icons {
+	margin: 0;
+	padding: 0;
+}
+#icons li {
+	margin: 2px;
+	position: relative;
+	padding: 4px 0;
+	cursor: pointer;
+	float: left;
+	list-style: none;
+}
+#icons span.ui-icon {
+	float: left;
+	margin: 0 4px;
+}
+.fakewindowcontain .ui-widget-overlay {
+	position: absolute;
+}
+#tabs{
+	width:660px;
+	margin: 0;
+	padding: 0;	
+}		

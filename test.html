@@ -1,0 +1,688 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>KITS-TUTOR</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link href="css/custom-theme/jquery-ui-1.10.3.custom.css" rel="stylesheet">
+	<link href="css/css.css" rel="stylesheet" type="text/css" />
+	<style type="text/css"> 
+.nifty1{ float:left; margin:0 0; background:#F4F3F2; width:420px; position: fixed; left:660px; top:250px; border:0px solid;}
+.nifty1 .content{ padding:20px 10px 20px 10px ; height:760px;}
+
+.nifty{ float:left; margin:0 0; background:#F4F3F2; width:420px;position: absolute; left:660px; top:500px; border:0px solid;}
+.nifty .content{ padding:0 10px; height:760px;}
+b.rtop,b.rbottom{display:block; background:#FFF;}
+b.rtop b,b.rbottom b{display:block; height:1px; overflow:hidden; background:#F4F3F2;}
+b.r1{margin:0 5px;}
+b.r2{margin:0 3px;}
+b.r3{margin:0 2px;}
+b.rtop b.r4,rbottom b.r4{margin:0 1px; height:2px;}
+		#adv { border: 1px solid black; float:right; }
+		#googleMap { border: 1px solid black; float:right; }
+		#dialog-link {
+			padding: .4em 1em .4em 20px;
+			text-decoration: none;
+			position: relative;
+		}
+		#dialog-link span.ui-icon {
+			margin: 0 5px 0 0;
+			position: absolute;
+			left: .2em;
+			top: 50%;
+			margin-top: -8px;
+		}
+		#icons {
+			margin: 0;
+			padding: 0;
+		}
+		#icons li {
+			margin: 2px;
+			position: relative;
+			padding: 4px 0;
+			cursor: pointer;
+			float: left;
+			list-style: none;
+		}
+		#icons span.ui-icon {
+			float: left;
+			margin: 0 4px;
+		}
+		.fakewindowcontain .ui-widget-overlay {
+			position: absolute;
+		}
+		#tabs{
+			width:660px;
+			margin: 0;
+			padding: 0;	
+		}		
+	</style>
+	<script src="js/jquery-1.9.1.js"></script>
+	<script src="js/jquery-ui-1.10.3.custom.js"></script>	
+	<script language="javascript" type="text/javascript" src="js/menu.js"></script>	
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+	<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDWtgOmgur05bHqe0bJ34jADZyFXwiT31s&sensor=false"></script>
+	<script type="text/javascript">
+	window.onload=function() {
+		Load();
+	}		
+	var xml = null;	
+	var originXmlData = [];
+	var searchSalaryResult = []; //for search year use
+	var markers = [];//final output result
+	var html = "";	
+	var map;
+	function Load()
+	{
+		try{					
+			downloadUrl("phpgetadvcontentbig5.php", function(data) {
+				xml = data.responseXML;			
+				originXmlData = xml.documentElement.getElementsByTagName("marker");									
+				if(markers.length == 0) {
+					markers = originXmlData;
+					ConstructLayout(markers);
+				}				
+			});
+			
+			latlng = new google.maps.LatLng(22.398391,114.20067);
+			var options = {
+				zoom: 17,
+				center: latlng,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			};
+
+			map = new google.maps.Map(document.getElementById("googleMap"), options);	
+		} 
+		catch(err) {
+			alert(err);
+		}
+	}	
+	
+	var yearMap = ["K.1", "K.2", "K.3", "P.1", "P.2", "P.3", "P.4", "P.5", "P.6", "F.1", "F.2", "F.3", "F.4", "F.5", "F.6", "F.7"];
+	$(function() {	
+		$("#keywordSearch").keyup(function() {
+			SearchKeyword($("#keywordSearch").val());
+		});			
+	
+		$( "#slider-range" ).slider({
+			range: true,
+			min: 50,
+			max: 400,
+			step: 10,
+			values: [ 50, 400 ],	
+			slide: function(event, ui) {	
+				SearchSalary(ui.values[0], ui.values[1]);
+				$( "#amount" ).val( "$" + ui.values[0] + " - $" + ui.values[1]);				
+			},
+			change: function(event, ui) { 
+				SearchSalary(ui.values[0], ui.values[1]);
+				$( "#amount" ).val( "$" + ui.values[0] + " - $" + ui.values[1]);	
+			}
+		});	
+		
+		var year1 = "";
+		var year2 = "";
+
+		$( "#slider-year" ).slider({
+			range: true,
+			min: 0,
+			max: yearMap.length - 1,
+			values: [ 0, 15 ],			
+			change: function( event, ui ) {
+				year1 = yearMap[ui.values[0]];
+				year2 = yearMap[ui.values[1]];
+				$( "#year" ).val(year1 + " - " + year2 );
+				SearchYear(ui.values[0], ui.values[1]);
+			}
+		});
+		
+		$( "#dialog" ).dialog({
+			autoOpen: false,
+			width: 900,
+			resizeStop: function(event, ui){
+				google.maps.event.trigger(map, 'resize')
+			},
+			open: function(event, ui) {
+				google.maps.event.trigger(map, 'resize');
+			},
+			buttons: [
+				{
+					text: "APPLY",
+					click: function() {
+								var sdlg = "#dialog";	
+								var sIntro = "#subSelfIntro";
+								var sTime = "#subTime";
+								var sneed_salary ="#need_salary";
+								$.ajax({
+									type: "POST",
+									url: 'pureTutorSubmitJob.php',
+									data:{
+										classID: selectedCaseID,
+										selfIntro: $("#subSelfIntro").val(),
+										job_number: $("#job_number").val(),
+										case_content1: $("#case_content1").val(),
+										mobile: $("#mobile").val(),
+										CName: $("#CName").val(),
+										need_salary: $("#need_salary").val(),
+										mon: $("#mon").val(),
+										tue: $("#tue").val(),
+										wed: $("#wed").val(),
+										thur: $("#thur").val(),
+										fri: $("#fri").val(),
+										sat: $("#sat").val(),
+										sun: $("#sun").val(),
+										tutorID: ''
+									},
+									success: function(data)
+									{	
+										alert(" KITS-TUTOR 已收到你的應徵, 有消息會立即通知");
+										document.getElementById("content1").innerHTML  = data;
+									/*	$(sIntro).val("");
+										$(mon).val("");
+										$(tue).val("");
+										$(wed).val("");
+										$(thur).val("");
+										$(fri).val("");
+										$(sat).val("");
+										$(sun).val("");*/
+										$(sneed_salary).val("");
+										$(sTime).val("");
+										$(sdlg).dialog('close');	
+									}
+								});
+							}
+				},
+				{
+					text: "Cancel",
+					click: function() {
+						$( this ).dialog( "close" );
+					}
+				}
+			]
+		});
+
+		// Link to open the dialog
+		$( "#dialog_adv" ).click(function( event ) {				
+			$( "#dialog" ).dialog( "open" );			
+			event.preventDefault();
+		});				
+	});
+	
+	function SearchSalary(min, max)
+	{
+		var list = [];
+		//always use originXmlData to search
+		try{
+			for (var i = 0; i < originXmlData.length; i++) {
+				var hourrate = originXmlData[i].getAttribute("job_hourrate");		 
+				if(hourrate >= min && hourrate <= max)
+				{
+					oldNode=xml.getElementsByTagName('marker')[i];
+					list.push(oldNode);
+				}
+			}
+			markers = list;
+			searchSalaryResult = markers;
+			if(searchSalaryResult.length > 0) {
+				ConstructLayout(searchSalaryResult);
+			}
+			else
+			{
+				searchSalaryResult = xml.documentElement.getElementsByTagName("marker");	
+				ConstructLayout(searchSalaryResult);
+			}
+		}
+		catch(err)	{
+			alert(err);
+		}	
+	}
+	
+	function SearchYear(year1, year2)
+	{
+		try {
+			document.getElementById("content").innerHTML = '';
+			var list = [];
+			
+			if(searchSalaryResult.length == 0)
+			{
+				searchSalaryResult = originXmlData;
+			}
+			
+			for (var i = 0; i < searchSalaryResult.length; i++) {
+				var job_stu_level= searchSalaryResult[i].getAttribute("job_stu_level");
+				var job_number = searchSalaryResult[i].getAttribute("job_number");
+				
+				for(var j = year1; j <= year2; j++) {
+					if(job_stu_level.search(yearMap[j]) !== -1) {					
+						for(var k = 0; k < originXmlData.length; k++) {
+							var thisJob_number = originXmlData[k].getAttribute("job_number");
+							if(thisJob_number == job_number) {
+								oldNode=xml.getElementsByTagName('marker')[k];
+								list.push(oldNode);
+							}
+						}						
+					}
+				}
+			}
+			markers = list;	
+			if(markers.length > 0) {
+				ConstructLayout(markers);
+			}
+			else
+			{
+				markers = xml.documentElement.getElementsByTagName("marker");	
+				ConstructLayout(markers);
+			}	
+		}
+		catch(err) {
+			alert(err);
+		}
+	}
+	
+	function SearchKeyword(str)
+	{
+		try{	
+			document.getElementById("content").innerHTML = '';
+			var list = [];
+			var splitStr = str.split(","); 
+			for (var i = 0; i < originXmlData.length; i++) {							
+				var job_stu_subject = originXmlData[i].getAttribute("job_stu_subject");	
+				var district = originXmlData[i].getAttribute("job_district");
+				var address = originXmlData[i].getAttribute("job_address");
+				var job_number = originXmlData[i].getAttribute("job_number");			
+				for(var j = 0; j < splitStr.length; j++) {
+					if( job_stu_subject.indexOf(splitStr[j]) > -1 || district.indexOf(splitStr[j]) > -1 ) {	
+						oldNode=xml.getElementsByTagName('marker')[i];
+						list.push(oldNode);
+					}
+				}
+			}
+			markers = list;
+			ConstructLayout(markers);
+		}
+		catch(err){
+			alert(err);
+		}		
+	}
+	
+	function ConstructLayout(thisArray)
+	{
+		html = "";
+		try	{
+			for (var i = 0; i < thisArray.length; i++) {
+			
+				var job_number = thisArray[i].getAttribute("job_number");
+				var address = thisArray[i].getAttribute("job_address");
+				var district = thisArray[i].getAttribute("job_district");
+				var hourrate = thisArray[i].getAttribute("job_hourrate");		 
+				var job_stu_secondary= thisArray[i].getAttribute("job_stu_secondary");
+				var job_stu_subject= thisArray[i].getAttribute("job_stu_subject");
+				var job_time= thisArray[i].getAttribute("job_time");
+				var job_stu_sex= thisArray[i].getAttribute("job_stu_sex");
+				var job_stu_level= thisArray[i].getAttribute("job_stu_level");
+				var job_rate_type = thisArray[i].getAttribute("job_rate_type");
+				var job_post_date = thisArray[i].getAttribute("job_post_date");
+				var job_lat = thisArray[i].getAttribute("lat");
+				var job_lng = thisArray[i].getAttribute("lng");
+				
+				if(i%2==0) {
+					var table_bgcolor = "#EAEAEA";
+				}
+				else {
+					var table_bgcolor = "#FFFFFF";
+				}
+				
+			
+				html += "<tr bgcolor = '" + table_bgcolor + "' onmouseover = \"this.style.backgroundColor='#dbc6ee'; this.style.cursor='hand'; \"  onmouseout = \" this.style.backgroundColor='" +table_bgcolor + "'  \"  >";
+				if(i!=0) {
+					html += "<td width = '100px' height = '20px' align = 'center' valign = 'middle'>";			
+					html += "<a href = \"javascript: CheckLogin('" + job_number + "', '" + district + address+ job_stu_level +"("+job_stu_sex+")"+job_stu_subject+","+job_time+","+hourrate+job_rate_type +"', " + job_lat + ", " + job_lng + ");\">";
+					html += "<font color = '#000000' style = 'font-size: 9pt;'><strong>";
+					html += district + address;
+					html += "</font> <font color = 'red' style = 'font-size: 8pt;'><BR><按此應徵></font></strong>";
+					html += "</a>";
+					html += "</td>";
+				}
+				else {				
+					html += "<td width = '100px' height = '20px' align = 'center' valign = 'middle'>";			
+					html += "<a href = \"javascript: CheckLogin('" + job_number + "', '" + district + address+ job_stu_level +"("+job_stu_sex+")"+job_stu_subject+","+job_time+","+hourrate+job_rate_type +"', " + job_lat + ", " + job_lng + ");\">";
+					html += "<font color = '#000000' style = 'font-size: 9pt;'><strong>";
+					html += district + address;
+					html += "</font> <font color = 'red' style = 'font-size: 8pt;'><BR><按此應徵></font></strong>";
+					html += "</a>";
+					html += "</td>";				
+				}
+						
+				html += '<td  width=\"80\"   align=\"center\" valign=\"middle\"><font color=\"#000000\" style=\"font-size: 9pt\">';
+				html += job_stu_level+'</font></td>';
+				html += '<td  width=\"30\"   align=\"center\" valign=\"middle\"><font color=\"#000000\" style=\"font-size: 9pt\">';
+				html += job_stu_sex +'</font></td>';
+				html += '<td width=\"210\"   align=\"center\" valign=\"middle\"><font color=\"#000000\" style=\"font-size: 9pt\">';
+				html += job_stu_subject;
+					
+				if(job_stu_secondary!=0 && job_stu_secondary!='') {
+					html += '(' + job_stu_secondary +')</font></td>';
+				} 
+				else {
+					html += '</font></td>';
+				}
+					
+				html += '<td width=\"195\"   align=\"center\" valign=\"middle\"><font color=\"#000000\" style=\"font-size: 9pt\">';
+				html += job_time +'</font></td>';
+				html += '<td width=\"50\"  align=\"center\" valign=\"middle\"><font color=\"#000000\" style=\"font-size: 9pt\">$' + hourrate + job_rate_type;
+				html += '</font></td>';
+			   
+				//$day = $fielddatas[15][0].$fielddatas[15][1].$fielddatas[15][2].$fielddatas[15][3].$fielddatas[15][4].$fielddatas[15][5].$fielddatas[15][6].$fielddatas[15][7].$fielddatas[15][8].$fielddatas[15][9].$fielddatas[15][10];
+				html += '<td width=\"80\"   align=\"center\" valign=\"middle\"><font color=\"#000000\" style=\"font-size: 9pt\">'+job_post_date +'</font></td>';
+				html += '</a>';
+				html += '</tr>';						
+			}
+			html = '<table> ' + html + '</table>';
+			try {
+				
+				document.getElementById("content").innerHTML  = html;
+			}
+			catch(err) {
+				alert(err);
+			}				
+		}
+		catch (err)	{
+			alert(err);
+		}
+	}	
+	
+	function removeDuplicates(inputArray) {
+        var outputArray=new Array();
+        if(inputArray.length>0){
+            jQuery.each(inputArray, function(index, value) {
+				if(jQuery.inArray(value, outputArray) == -1){
+					outputArray.push(value);
+				}
+            });
+        }           
+        return outputArray;
+    }		
+	
+	function Reset()
+	{
+		try {
+			$( "#slider-range" ).slider("values", 0, 50);
+			$( "#slider-range" ).slider("values", 1, 400);		
+			$("#slider-year").slider('values',0,0);		
+			$("#slider-year").slider('values',1,15);	
+			$( "#year" ).val("K.1 - F.7");
+			$( "#amount" ).val("$50 - $400");	
+			$("#keywordSearch").val("");
+			ConstructLayout(originXmlData);
+		}
+		catch(err) {
+			alert(err);
+		}
+	}
+	
+	function downloadUrl(url, callback) {
+		try {
+			var request = window.ActiveXObject ? new ActiveXObject('Microsoft.XMLHTTP') : new XMLHttpRequest;
+			request.onreadystatechange = function() {
+				if (request.readyState == 4) {
+					request.onreadystatechange = doNothing;
+					callback(request, request.status);
+				}
+			};
+			request.open('GET', url, true);
+			request.send(null);
+		}
+		catch(err) {
+			alert(err);
+		}
+	}	
+	
+	function callback(results, status) {	
+		if (status == google.maps.places.PlacesServiceStatus.OK) {
+			/*for (var i = 0; i < results.length; i++) {			
+				createMarker(results[i]);
+				map.setCenter(results[i].geometry.location);
+			}*/
+		}
+	}	
+	
+	function doNothing() {}
+	
+	var selectedCaseID = "";
+	
+	function CheckLogin(job_number,adv, lat, lng)
+	{
+		selectedCaseID=job_number;
+		document.getElementById("googleMap").style.display = '';
+		$(function() {
+			$( "#dialog" ).dialog( "open" );
+			if(lat == 0 && lng == 0)
+			{
+				document.getElementById("googleMap").style.display = 'none';
+			}
+			else
+			{
+				var myLatlng = new google.maps.LatLng(lat, lng);  
+				map.setCenter(myLatlng, 17);      
+				var marker = new google.maps.Marker({
+					position: myLatlng, 
+					map: map, 
+					title:'',
+					icon: 'http://labs.google.com/ridefinder/images/mm_20_blue.png'
+				});
+				return false;
+			}
+		});	
+		document.apply_form.case_content1.value = adv;
+		document.apply_form.job_number.value = job_number;
+		
+	}
+	
+	</script>
+</head>
+<body>
+	<table width="1100" background="image/main_menu.jpg" border="0" cellpadding="0" cellspacing="0">
+		<tr height='52' valign='top'>
+			<td width='1100'></td>
+		</tr>
+	</table>
+	﻿<table id="table1">
+		<tr>
+			<td>
+				<div id="menu">
+					<ul id="nav">
+						<!--一級導航列-->
+						<li class="mainlevel"><span class="note"><a href="index.php">首頁</a></span></li> 
+						<!--一級導航列-->   
+						<li class="mainlevel" id="mainlevel_01"><a href="index.php">補習推介</a>
+							<!--二級導航列-->		
+						</li>
+						<!--一級導航列-->   
+						<li class="mainlevel" id="mainlevel_02"><a href="#">導師登記/收費簡介</a>
+							<!--二級導航列-->
+							<ul class="sub_nav_01">  
+								<li><a href="tutor_reg_step1.php">導師登記</a></li>
+								<li><a href="pay_method.php">導師手續費簡介</a></li>    
+							</ul>
+						</li>        
+						    
+						<li class="mainlevel"><a href="#">上載/更新</a><!--input an em tag as a space,IE is gread need-->
+							<ul class="sub_nav_01"> 
+								<li><a href="tutor_upload_result_step0.php">上載考試成績</a></li>
+								<li><a href="tutor_up_university_step1.php">更新大學或補習科目</a></li>
+								<li><a href="tutor_up_al_result_step1.php">更新DSE或高考成績</a></li>
+							</ul>
+						</li>    
+						<li class="mainlevel"><a href="tutor_adv_reg.php">導師張貼告示</a>    
+						
+						</li>
+						<li class="mainlevel"><a href="parent_find_tutor.php">家長搵導師</a>
+    
+						</li>
+						<li class="mainlevel"><a href="contact_us.php">聯絡我們</a>
+
+						</li>
+						<li class="mainlevel"><a href="mapping2.php">地圖版</a>
+
+						</li>
+					</ul>
+				</div>
+			</td>
+			<td width='100'></td>
+		</tr>
+	</table>
+	
+	<table width="1100" background="image/job.jpg" border="0" cellpadding="0" cellspacing="0">
+		<tr height='115' valign='top'>
+			<td width='1100'></td>
+		</tr>
+	</table>
+<div class="nifty1">
+	<b class="rtop"><b class="r1"></b><b class="r2"></b><b class="r3"></b><b class="r4"></b></b>
+
+	<form id = "topSerach">
+		<table cellpadding = '0' cellspacing = '0' border='0' width='420'>
+			<tr><td style = 'padding-left:5px;height:50px;'><img src="image/job_setting.jpg"  border="0" width="400" height="47"></td></tr>
+			<tr>
+				<td style = 'padding-left:5px;'>	
+					時薪
+					<input type="text" id="amount" style="background-color : #F4F3F2; border: 0; color: #f6931f; font-weight: bold;" value = "$50 - $400" readonly/>
+				</td>
+			</tr>
+			<tr>
+				<td width = "300px" style = 'padding-left:15px;'>
+					<div id="slider-range"></div>
+				</td>
+			</tr>
+			<tr>
+				<td style = 'padding-left:5px;'>
+					年級
+					<input type="text" id="year" style="background-color : #F4F3F2; border: 0; color: #f6931f; font-weight: bold;" value = "K.1 - F.7" readonly/>
+				</td>
+			</tr>
+			<tr>
+				<td width = "300px" style = 'padding-left:15px;'>
+					<div id = "slider-year"></div>
+				</td>
+			</tr>
+			<tr>
+				<td style = 'padding-left:5px;'>關鍵字</td>
+			</tr>
+			<tr>
+				<td style = 'padding-left:5px;'>
+					<input type = 'text' id = "keywordSearch" name = "keywordSearch">
+				</td>
+			</tr>
+			<tr>				
+				<td width = "300px" style = 'padding-left:5px;'>
+					<a href = "javascript:Reset();">重設</a>
+				</td>
+			</tr>
+		</table>
+	</form>
+	
+   
+    <b class="rbottom"><b class="r4"></b><b class="r3"></b><b class="r2"></b><b class="r1"></b></b>
+</div>	
+
+
+	<br/>	
+	<div id='content' style='float:left; width:650px; border:2px solid;' >
+	
+	</div>	
+<div class="nifty">
+	<b class="rtop"><b class="r1"></b><b class="r2"></b><b class="r3"></b><b class="r4"></b></b>
+    <div id="content1">
+	<!-- 放廣告位置<a href='image/20150407.jpg' target='_blank'>
+    <img src="image/20150407.jpg"  border="0" width="400" height="562"></a>---->
+    </div>
+    <b class="rbottom"><b class="r4"></b><b class="r3"></b><b class="r2"></b><b class="r1"></b></b>
+</div>	
+	<div id="dialog" title="補習個案內容" >
+		<div style='float:left;'>
+			<form action = 'tutorSumitJob1.php' method = 'POST' name ='apply_form'>
+				<input type = 'text'  name = 'job_number' id = 'job_number' readonly>
+				<table>		
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:blue'>個案內容</font><br/>
+							<textarea rows = '3' cols = '45' name = 'case_content1' id = 'case_content1' readonly></textarea>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:blue'>手提電話</font><br/>
+							<input type = 'text' name = 'mobile' id = 'mobile' size = '50' maxlength='8'>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:blue'>導師姓名</font><br/>
+							<input type = 'text' name = 'CName' id = 'CName' size = '50'>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:blue'>個人簡介</font><br/>
+							<textarea rows = '5' cols = '45' name = 'subSelfIntro' id = 'subSelfIntro'></textarea>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:blue'>要求薪金</font><br/>
+							<input type = 'text' name = 'need_salary' id = 'need_salary' size = '50'>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:red'>填入自己許可的時間有助增加受聘的機會</font><br/>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:blue'>星期一</font><input type = 'text' name = 'mon' id = 'mon' size = '45'>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:blue'>星期二</font><input type = 'text' name = 'tue' id = 'tue' size = '45'>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:blue'>星期三</font><input type = 'text' name = 'wed' id = 'wed' size = '45'>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:blue'>星期四</font><input type = 'text' name = 'thur' id = 'thur' size = '45'>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:blue'>星期五</font><input type = 'text' name = 'fri' id = 'fri' size = '45'>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:blue'>星期六</font><input type = 'text' name = 'sat' id = 'sat' size = '45'>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<font style = 'font-size:0.9em; color:blue'>星期日</font><input type = 'text' name = 'sun' id = 'sun' size = '45'>
+						</td>
+					</tr>					
+				</table>
+			</form>
+		</div> 
+		<div id="googleMap"  style="width:300px;height:300px;"></div>
+		<div id="adv"  style="width:300px;height:300px;">
+		 <!-- 放廣告位置<a href='image/20150407.jpg' target='_blank'><img src="image/20150407.jpg"  border="0" width="212" height="300"></a>--->
+		</div>
+	</div>	
+<iframe name="parent_find_tutor" src="http://www.kits-tutor.com/phpgetadvcontentbig5.php" scrolling="auto" frameborder="0" width="0" height="0" cellpadding="0" cellspacing="0"></iframe>
+        
+</body>
+</html>
