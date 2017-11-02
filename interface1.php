@@ -17,7 +17,7 @@
 	</style>
 	<script src="js/jquery-1.9.1.js"></script>
 	<script src="js/jquery-ui-1.10.3.custom.js"></script>	
-	<script src="js/customJS.js?version=2.4"></script>
+	<script src="js/customJS.js?version=3.1"></script>
 	<!-- <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script> -->
 	<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDWtgOmgur05bHqe0bJ34jADZyFXwiT31s&sensor=false"></script>
 	

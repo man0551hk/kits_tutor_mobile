@@ -1,29 +1,29 @@
 <?php require("interface1.php");?>
 
 	<div class="container">
-		<div class="row">
-			<div class = "col-xs-12 col-sm-12 col-md-12">
-				<div class = "row" style = "background-color:#F4F3F2;">
-					<div class = "col-md-12">
+
+				<div class = "row" style = "background-color:#F4F3F2;align:center;">
+					<div class = "col-md-12" style = "">
 						<img src="image/job_setting.jpg"  border="0" class="img-responsive" alt="Responsive image" />		
 						
 						<form id = "topSerach" class="form-horizontal" action = "result.php" method = "post">
 							時薪
 							<input type="text" id="amount" style="background-color : #F4F3F2; border: 0; color: #f6931f; font-weight: bold;" value = "$50 - $400" readonly/>
-							<input type = "hidden" value = "50" name = "amountStart" />
-							<input type = "hidden" value = "400" name = "amountEnd" />
+							<input type = "hidden" value = "50" name = "amountStart"  id = "amountStart"/>
+							<input type = "hidden" value = "400" name = "amountEnd"  id = "amountEnd"/>
 							<div id="slider-range"></div>
 							<div style = "height:5px;"></div>
 							年級
 							<input type="text" id="year" style="background-color : #F4F3F2; border: 0; color: #f6931f; font-weight: bold;" value = "K.1 - F.7" readonly/>
-							<input type = "hidden" value = "K.1" name = "yearStart" />
-							<input type = "hidden" value = "F.7" name = "yearEnd" />
+							<input type = "hidden" value = "0" name = "yearStart" id = "yearStart"/>
+							<input type = "hidden" value = "15" name = "yearEnd" id = "yearEnd"/>
 							<div id = "slider-year"></div>
 							<div style = "height:5px;"></div>
 							
 							<div class="form-group">
 								<label for = "subject" class="col-sm-3 control-label">補習科目</label>
 								<div class="col-sm-9">
+									<input type = 'hidden' value = '' name = 'selectedSubject' id = 'selectedSubject' />
 									<select class="form-control" multiple="multiple" name = "subject" id = "subject" >
 										<option value = '中文'>中文</option>
 										<option value = '英文'>英文</option>
@@ -60,6 +60,7 @@
 								</div>
 							</div>
 							<div id = 'area2Div' style = "display:none;">
+								<input type = 'hidden' value = '' name = 'selectedDistrict' id = 'selectedDistrict' />
 								<div class="form-group">
 									<label for = "distict" class="col-sm-3 control-label">地區</label>
 									<div class="col-sm-9">
@@ -81,7 +82,6 @@
 						</form>	
 					</div>
 				</div>
-			</div>			
-		</div>
+
 	</div>
 <?php require("interface2.php");?>

@@ -1,7 +1,7 @@
 	var isInit = true;
-	window.onload=function() {
-		Load();
-	}		
+	// window.onload=function() {
+	// 	Load();
+	// }		
 	
 	var xml = null;	
 	var originXmlData = [];
@@ -75,13 +75,14 @@
 				}	
 				if(strSelectedSubject != "")
 				{
+					$("#selectedSubject").val(strSelectedSubject);
 					searchSubject = true;
 				}
 				else
 				{
 					searchSubject = false;
 				}
-				masterSearch();				
+				//masterSearch();				
 			}			
 		});
 		
@@ -107,13 +108,14 @@
 				}	
 				if(strSelectedLocation != "")
 				{
+					$("#selectedDistrict").val(strSelectedLocation);
 					searchLocation = true;
 				}
 				else
 				{
 					searchLocation = false;
 				}
-				masterSearch();
+				//masterSearch();
 			}			
 		});
 	
@@ -320,7 +322,7 @@
 				$( "#amount" ).val( "$" + ui.values[0] + " - $" + ui.values[1]);	
 				$("#amountStart").val(ui.values[0]);
 				$("#amountEnd").val(ui.values[1]);
-				masterSearch();				
+				//masterSearch();				
 			},
 			change: function(event, ui) { 
 				//SearchSalary(ui.values[0], ui.values[1]);
@@ -329,7 +331,7 @@
 				$( "#amount" ).val( "$" + ui.values[0] + " - $" + ui.values[1]);	
 				$("#amountStart").val(ui.values[0]);
 				$("#amountEnd").val(ui.values[1]);
-				masterSearch();
+				//masterSearch();
 			}
 		});	
 
@@ -337,15 +339,24 @@
 			range: true,
 			min: 0,
 			max: yearMap.length - 1,
-			values: [ 0, 15 ],			
+			values: [ 0, 15 ],		
+			slide: function(event, ui) {	
+				year1 = ui.values[0];
+				year2 = ui.values[1];
+				$("#yearStart").val(ui.values[0]);
+				$("#yearEnd").val( ui.values[1]);				
+				$( "#year" ).val(yearMap[year1] + " - " + yearMap[year2] );
+				//SearchYear(ui.values[0], ui.values[1]);
+				//masterSearch();		
+			},				
 			change: function( event, ui ) {
 				year1 = ui.values[0];
 				year2 = ui.values[1];
+				$("#yearStart").val(ui.values[0]);
+				$("#yearEnd").val( ui.values[1]);				
 				$( "#year" ).val(yearMap[year1] + " - " + yearMap[year2] );
-				$("#yearStart").val(yearMap[year1]);
-				$("#yearEnd").val(yearMap[year2]);
 				//SearchYear(ui.values[0], ui.values[1]);
-				masterSearch();
+				//masterSearch();
 			}
 		});
 
@@ -386,9 +397,11 @@
 								});			
 		});
 	});
-	
-	function masterSearch()
+
+	function masterSearch(salary1, salary2)
 	{
+		console.log(salary1);
+		console.log(salary2);
 		var list = [];
 		var filter1 = [];
 		var filter2 = [];
@@ -404,6 +417,7 @@
 				{
 					if(hourrate >= salary1 && hourrate <= salary2)
 					{
+						console.log(xml.getElementsByTagName('marker')[i]);
 						oldNode=xml.getElementsByTagName('marker')[i];
 						filter1.push(oldNode);
 					}
@@ -494,6 +508,7 @@
 				
 			}
 			list = filterList;
+			console.log(list);
 			ConstructLayout(list);
 		}
 		catch(err)
