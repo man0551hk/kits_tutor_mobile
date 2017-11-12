@@ -17,8 +17,8 @@
 	</style>
 	<script src="js/jquery-1.9.1.js"></script>
 	<script src="js/jquery-ui-1.10.3.custom.js"></script>	
-	<script src="js/customJS.js?version=3.1"></script>
-	<!-- <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script> -->
+	<script src="js/customJS.js?version=3.2"></script>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 	<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDWtgOmgur05bHqe0bJ34jADZyFXwiT31s&sensor=false"></script>
 	
 	<script type="text/javascript" src="js/bootstrap-multiselect.js"></script>
@@ -57,7 +57,7 @@
 							<li><a href="pay_method.php">導師手續費簡介</a></li>							
 						</ul>
 					</li>
-					<li class="dropdown">
+					<!-- <li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">上載/更新<span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li><a href="tutor_upload_result_step0.php">上載考試成績</a></li>
@@ -66,9 +66,9 @@
 						</ul>
 					</li>					
 					<li><a href="tutor_adv_reg.php">導師張貼告示</a></li>
-					<li><a href="parent_find_tutor.php">家長搵導師</a></li>
+					<li><a href="parent_find_tutor.php">家長搵導師</a></li> -->
 					<li><a href="contact_us.php">聯絡我們</a></li>
-					<li><a href="mapping2.php">地圖版</a></li>
+					<!-- <li><a href="mapping2.php">地圖版</a></li> -->
 				</ul>
 			</div><!-- /.navbar-collapse -->
 		</div><!-- /.container-fluid -->

@@ -12,14 +12,14 @@
 	function Load()
 	{
 		try{					
-			downloadUrl("phpgetadvcontentbig5.xml", function(data) {
-				xml = data.responseXML;			
-				originXmlData = xml.documentElement.getElementsByTagName("marker");									
-				if(markers.length == 0) {
-					markers = originXmlData;
-					ConstructLayout(markers);
-				}				
-			});
+			// downloadUrl("phpgetadvcontentbig5.xml", function(data) {
+			// 	xml = data.responseXML;			
+			// 	originXmlData = xml.documentElement.getElementsByTagName("marker");									
+			// 	if(markers.length == 0) {
+			// 		markers = originXmlData;
+			// 		ConstructLayout(markers);
+			// 	}				
+			// });
 			$(function() {
 				latlng = new google.maps.LatLng(22.398391,114.20067);
 				var options = {
@@ -398,123 +398,173 @@
 		});
 	});
 
-	function masterSearch(salary1, salary2)
+	function masterSearch(salary1, salary2, year1, year2, strSelectedSubject, strSelectedLocation, keyword)
 	{
-		console.log(salary1);
-		console.log(salary2);
-		var list = [];
-		var filter1 = [];
-		var filter2 = [];
-		var filter3 = [];
-		var filter4 = [];
-		var filterList = [];
-		
-		//document.getElementById("debug").innerHTML = year1 + " " + year2;
-		try{
-			for (var i = 0; i < originXmlData.length; i++) {
-				var hourrate = originXmlData[i].getAttribute("job_hourrate");		 
-				if(hourrate != "")
-				{
-					if(hourrate >= salary1 && hourrate <= salary2)
-					{
-						console.log(xml.getElementsByTagName('marker')[i]);
-						oldNode=xml.getElementsByTagName('marker')[i];
-						filter1.push(oldNode);
-					}
-				}
-			}
+		// console.log(salary1);
+		// console.log(salary2);
+		// console.log(year1);
+		// console.log(year2);
+		// console.log(strSelectedSubject);
+		// console.log(strSelectedLocation);
+		// console.log(keyword);
+		//http://www.kits-tutor.com/2015/phpgetadvcontentbig5.php
+		downloadUrl("phpgetadvcontentbig5.xml", function(data) {
+			xml = data.responseXML;	
+			originXmlData = xml.documentElement.getElementsByTagName("marker");							
+			if(markers.length == 0) {
+				markers = originXmlData;
 
-			for (var i = 0; i < filter1.length; i++) {
-				var job_stu_level= filter1[i].getAttribute("job_stu_level");
-				var job_number = filter1[i].getAttribute("job_number");
+
+				var list = [];
+				var filter1 = [];
+				var filter2 = [];
+				var filter3 = [];
+				var filter4 = [];
+				var filter5 = [];
+				var filterList = [];
 				
-				for(var j = year1; j <= year2; j++) {
-					if(job_stu_level.search(yearMap[j]) !== -1) {					
-						for(var k = 0; k < originXmlData.length; k++) {
-							var thisJob_number = originXmlData[k].getAttribute("job_number");
-							if(thisJob_number == job_number) {
-								oldNode=xml.getElementsByTagName('marker')[k];
-								filter2.push(oldNode);
+				//document.getElementById("debug").innerHTML = year1 + " " + year2;
+				try{
+					
+					for (var i = 0; i < originXmlData.length; i++) {
+						var hourrate = originXmlData[i].getAttribute("job_hourrate");		 
+						if(hourrate != "")
+						{
+							if(hourrate >= salary1 && hourrate <= salary2)
+							{
+								oldNode = xml.getElementsByTagName('marker')[i];
+								filter1.push(oldNode);
 							}
-						}						
+						}
 					}
-				}
-			}			
-			
-			if(filter2.length != 0)
-			{
-				filterList = filter2;
-			}
-			else if(filter2.length == 0 && filter1.length != 0)
-			{
-				filterList = filter1;
-			}
-			else if(filter2.length == 0 && filter1.length == 0)
-			{
-				filterList = originXmlData;
-			}
-			
-			if(searchSubject == true)
-			{
-				var splitStr = strSelectedSubject.split(","); 
-				
-				for (var i = 0; i < filterList.length; i++) {							
-					var job_stu_subject = filterList[i].getAttribute("job_stu_subject");	
-					var job_number = filterList[i].getAttribute("job_number");	
-					for(var j = 0; j < splitStr.length; j++) {
-						if(splitStr[j] != "")
-						{						
-							if( job_stu_subject.indexOf(splitStr[j]) != -1 ) {						
+					
+
+					for (var i = 0; i < filter1.length; i++) {
+						var job_stu_level= filter1[i].getAttribute("job_stu_level");
+						var job_number = filter1[i].getAttribute("job_number");
+						
+						for(var j = year1; j <= year2; j++) {
+							if(job_stu_level.search(yearMap[j]) !== -1) {					
 								for(var k = 0; k < originXmlData.length; k++) {
 									var thisJob_number = originXmlData[k].getAttribute("job_number");
 									if(thisJob_number == job_number) {
 										oldNode=xml.getElementsByTagName('marker')[k];
-										filter3.push(oldNode);
+										filter2.push(oldNode);
+									}
+								}						
+							}
+						}
+					}			
+					
+					if(filter2.length != 0)
+					{
+						filterList = filter2;
+					}
+					else if(filter2.length == 0 && filter1.length != 0)
+					{
+						filterList = filter1;
+					}
+					else if(filter2.length == 0 && filter1.length == 0)
+					{
+						filterList = originXmlData;
+					}
+					
+					if(strSelectedSubject != "")
+					{
+						var splitStr = strSelectedSubject.split(","); 
+						
+						for (var i = 0; i < filterList.length; i++) {							
+							var job_stu_subject = filterList[i].getAttribute("job_stu_subject");	
+							var job_number = filterList[i].getAttribute("job_number");	
+							for(var j = 0; j < splitStr.length; j++) {
+								if(splitStr[j] != "")
+								{						
+									if( job_stu_subject.indexOf(splitStr[j]) != -1 ) {						
+										for(var k = 0; k < originXmlData.length; k++) {
+											var thisJob_number = originXmlData[k].getAttribute("job_number");
+											if(thisJob_number == job_number) {
+												oldNode=xml.getElementsByTagName('marker')[k];
+												filter3.push(oldNode);
+											}
+										}
 									}
 								}
 							}
 						}
+						if(filter3.length != 0)
+						{
+							filterList = filter3;
+						}
 					}
+					
+					if( strSelectedLocation != "")
+					{
+						var splitStr = strSelectedLocation.split(","); 
+						
+						for (var i = 0; i < filterList.length; i++) {							
+							var district = filterList[i].getAttribute("job_district");
+							var job_number = filterList[i].getAttribute("job_number");	
+							for(var j = 0; j < splitStr.length; j++) {
+								if(splitStr[j] != "")
+								{	
+									if( district.indexOf(splitStr[j]) != -1 ) {		
+										console.log(district);						
+										for(var k = 0; k < originXmlData.length; k++) {
+											var thisJob_number = originXmlData[k].getAttribute("job_number");
+											if(thisJob_number == job_number) {
+												oldNode=xml.getElementsByTagName('marker')[k];
+												filter4.push(oldNode);
+											}
+										}
+									}
+								}
+							}
+						}	
+						console.log(filter4)
+						if(filter4.length != 0)
+						{
+							filterList = filter4;
+						}
+					}
+
+					if( keyword != "")
+					{
+						var splitStr = keyword.split(","); 
+						for (var i = 0; i < filterList.length; i++) {							
+							var job_stu_subject = filterList[i].getAttribute("job_stu_subject");	
+							var district = filterList[i].getAttribute("job_district");
+							var address = filterList[i].getAttribute("job_address");
+							var job_number = filterList[i].getAttribute("job_number");			
+							for(var j = 0; j < splitStr.length; j++) {
+								if (splitStr[j] != "")
+								{
+									if( job_stu_subject.indexOf(splitStr[j]) > -1 || district.indexOf(splitStr[j]) > -1 ) {	
+										for(var k = 0; k < originXmlData.length; k++) {
+											var thisJob_number = originXmlData[k].getAttribute("job_number");
+											if(thisJob_number == job_number) {
+												oldNode=xml.getElementsByTagName('marker')[k];
+												filter5.push(oldNode);
+											}
+										}
+									}
+								}
+							}
+						}
+						if(filter5.length != 0)
+						{
+							filterList = filter5;
+						}
+					}
+					list = filterList;
+					ConstructLayout(list);
 				}
-				if(filter3.length != 0)
+				catch(err)
 				{
-					filterList = filter3;
+				
 				}
-			}
-			
-			if( searchLocation == true)
-			{
-				var splitStr = strSelectedLocation.split(","); 
-				
-				for (var i = 0; i < filterList.length; i++) {							
-					var district = filterList[i].getAttribute("job_district");
-					var job_number = filterList[i].getAttribute("job_number");	
-					for(var j = 0; j < splitStr.length; j++) {
-						if(splitStr[j] != "")
-						{						
-							if( district.indexOf(splitStr[j]) != -1 ) {						
-								for(var k = 0; k < originXmlData.length; k++) {
-									var thisJob_number = originXmlData[k].getAttribute("job_number");
-									if(thisJob_number == job_number) {
-										oldNode=xml.getElementsByTagName('marker')[k];
-										filter4.push(oldNode);
-									}
-								}
-							}
-						}
-					}
-				}	
-				filterList = filter4;
-				
-			}
-			list = filterList;
-			console.log(list);
-			ConstructLayout(list);
-		}
-		catch(err)
-		{
-		
-		}
+								
+			}				
+		});
 	}
 	
 
